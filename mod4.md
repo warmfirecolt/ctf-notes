@@ -32,7 +32,6 @@ DAY 1
 
 CTF
 -----------------
-01 : windows_powershell : start7917 02 : windows_powershell_profiles : start9943 
 COMMAND - SSH-J Student@10.50.21.123 or ssh-j andy.dwyer@10.x.0.3
 
 <<<<<<<REGEX From CTF>>>>>>>>>>
@@ -110,3 +109,117 @@ ADS
   # This lists any ads that is in a directory
 /> dir /R <stream_name>
   # this shows specific ads
+  
+  DAY 3
+------------------------------------
+**Main Linux Directories**
+  /Root
+  /OPT
+  /SRV
+  /TMP
+  /PROC
+  /ETC
+  /SBIN
+  /MNT
+  /VAR
+
+**Permissions**
+  FILES
+  -> read
+  -> write
+  -> execute
+  DIRECORIES
+  -> read
+    # for directories, this does not mean you (cant) read whats inside the directory
+  -> write
+    # for directories, this does not mean you (cant) write whats to the directory
+Sticky Bit
+  # this is the permission to delete the file with the sticky bit set
+
+  1    2    3
+> rwx|rwx|rwx
+  > 1 (User)
+  > 2 (Group)
+  > 3 (Other)
+>         ## file
+> helps find what file it is
+
+CTF
+--------------
+Flag = start8543
+
+CODE
+-----------
+openssl enc -d -aes-128-cbc -salt -in cipher -out decrypted -k AES128Key
+  # this command decrypts a file using the sha128 key (openssl)
+sudo -u <user> <command>
+  # executes command as a user
+cat numbers | egrep -c '^([0-9]{1,3}\.){3}[0-9]{1,3}$'
+  # this finds valid and invalid ip addresses
+cat numbers | egrep -c '^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$'
+  # this finds only valid ip addresses
+cat numbers | egrep -v '\.' | egrep -c '^([0-9A-Za-z]{2}[:-]){5}([0-9A-Za-z]{2})$'
+  # this finds invalid and valid mac addresses
+awk 'NR >= 420 && NR <= 1337 {print $0}' numbers | sha512sum
+  # this finds lines between 420 and 1337 and hashes them
+  
+DAY 4
+---------
+cat numbers | grep -E '^([0-9A-Fa-f][26AEae48cC0])([:-]([0-9A-Fa-f]{2})){5}$' | wc -l
+
+http://1.bp.blogspot.com/-MaRtDTHH1Vo/UysJF8KXNbI/AAAAAAAAALo/D6Kt2f8Gpmo/s1600/Walkthrough_Diagram.jpg
+
+DAY 5
+--------------
+Check for persistence in:
+> sysv init
+> systemd init
+
+XXD:
+  # gives hex dump of MBR
+  # 0xeb63 is the start of the hardrive
+!Make a copy of the MBR to avoid irriversable mistakes!
+
+GRUB(Grand Unified Bootloader) has one purpose - to load the Linux Kernel a user choses from a location in the hard drive.
+  On Bios Systems using MBR:
+  > Stage 1: boot.img
+  > Stage 1.5: core.img
+  > Stage 2: /boot/grub/i386-pc/normal.mod
+
+  On Bios Systems using MBR:
+  > Stage 1: rubx64.efi
+  > Stage 2: /boot/grub/x86_64-efi/normal.mod
+
+Init Run Levels: (Located in etc/inittab)
+> 0: Halt
+> 1: Single User
+> 2: Multiuser
+> 3: Multiuser with Networking
+> 4: Not used/user definable
+> 5: Multiuser with Networking (GUI) Desktop
+> 6: Reboot
+
+
+
+Target.unit want and requires dependencies search locations
+> /etc/systemd/system/*
+> /lib/systemd/system/*
+> /run/systemd/generator/*
+
+The kernel is loaded with the command linux. The file /boot/vmlinuz-4.15.0-76-generic contains the Linux Kernel
+
+graphical.target is symbolically linked to default target
+
+CODE
+-----------------
+dd if=/home/bombadil/mbroken skip=446 bs=1 count=16 | md5sum
+  # this reads hex from file and and starts at 446 bytes and counts by 16 (locates the first partition)
+dd if=/home/bombadil/mbroken skip=392 bs=1 count=4 of=bruh
+  # this skips to 392 and counts 4 bytes and redirects to a file
+xxd -l <#bytes> <filename>
+
+systemctl show -p Wants graphical.target
+  # this shows the wants of a given unit
+find / -name <filename> -type f
+
+
