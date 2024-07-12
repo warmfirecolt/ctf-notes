@@ -221,5 +221,47 @@ xxd -l <#bytes> <filename>
 systemctl show -p Wants graphical.target
   # this shows the wants of a given unit
 find / -name <filename> -type f
+-accepteula
 
+DAY 6
+-----------------
+/> tasklist /svc
+  # this lists services
+/> tasklist /m /fi "ImageName" eq chrome | more
+  # this lists tasks that have the image name of chrome
+
+UAC Color Codes
+    > Red - Application or publisher blocked by group policy
+    > Blue & gold - Administrative application
+    > Blue - Trusted and Authenticode signed application
+    > Yellow - Unsigned or signed but not trusted application
+
+
+netsh advfirewall show allprofiles
+  # this is searching for firewall profiles and the options
+sc query state= all
+  # this lists process that are dead and alive
+sc.exe showsid Legit
+  # this prints the sid of "Legit" service name
+
+DAY 7
+-----------------
+Orphan Process is a process that doesnt have a parent.
+
+All Daemons have a PID of 2
+
+Zombies are hung up processes
+
+CODE
+--------------------------
+pgrep -P 1 | wc -l
+  # this counts how many processes have a ppid of 1
+ps -elf --forest | grep bombadil
+  # this lists who the parent is of each process
+sudo lsof -n -P
+  # this lists descriptors and makes it fast
+/> locate <file>
+  # OP as shit. Locates any file on a system
+/> grep -HiRl
+  # this searches for a string in any directory
 
