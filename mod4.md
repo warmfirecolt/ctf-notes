@@ -264,4 +264,216 @@ sudo lsof -n -P
   # OP as shit. Locates any file on a system
 /> grep -HiRl
   # this searches for a string in any directory
+  
+DAY 7
+-----------------
+Orphan Process is a process that doesnt have a parent.
 
+All Daemons have a PID of 2
+
+Zombies are hung up processes
+
+CODE
+--------------------------
+pgrep -P 1 | wc -l
+  # this counts how many processes have a ppid of 1
+ps -elf --forest | grep bombadil
+  # this lists who the parent is of each process
+sudo lsof -n -P
+  # this lists descriptors and makes it fast
+/> locate <file>
+  # OP as shit. Locates any file on a system
+/> grep -HiRl
+  # this searches for a string in any directory
+
+DAY 8
+-------------
+/> Get-LocalUser | select Name,SID
+  # this gets users with sids
+/> Get-WmiObject win32_useraccount | select name,sid
+  # get more users with sids
+/> Get-Childitem 'C:\$RECYCLE.BIN' -Recurse -Verbose -Force | select FullName
+  # this lists things in the recycle bin
+/> Get-WinEvent -Listlog *
+  # this lists logs
+/> Get-WinEvent -listlog * | findstr /i "Security"
+  # this lists logs with the name "Security"
+/>  Get-Item 'Registry::\HKEY_USERS\*\Software\Microsoft\Windows\CurrentVersion\Explorer\RecentDocs\.*'
+  # this finds recent files opened by any user
+/> Get-Item "REGISTRY::HKEY_USERS\*\Software\Microsoft\Windows\CurrentVersion\Explorer\RecentDocs\.txt" | select -Expand property | ForEach-Object {
+    [System.Text.Encoding]::Default.GetString((Get-ItemProperty -Path "REGISTRY::HKEY_USERS\*\Software\Microsoft\Windows\CurrentVersion\Explorer\RecentDocs\.txt" -Name $_).$_)
+  # this finds recent files and gives you the filepath
+/> Get-Childitem -Recurse C:\Users\*\AppData\Roaming\Microsoft\Windows\Recent -ErrorAction Continue | select FullName, LastAccessTime
+  # this gets last access time of any file
+/> Get-Item HKLM:\SYSTEM\CurrentControlSet\Services\bam\UserSettings\*
+  # this gets bam
+/> get-eventlog -logname <log_name> | fl * | findstr /i flag
+  # this searches through logs for a string
+/> systemctl list-timers
+  # this lists all timers in systemctl (persistence)
+
+%SystemRoot%\System32\Winevt\Logs\Security.evtx 
+  # this is where windows logs things on shutdown
+
+
+DAY 9
+-----------------
+Logging Daemons
+  Syslog
+    - /etc/rsyslog
+  Journald
+
+CODE
+-----------
+/> jq '.["id.orig_h"]' conn.log  | sort -u
+  # this reads a json file and sorts the value of id.origin_h by unique
+/> jq 'select(.resp_bytes >= 40)' conn.log | grep resp_bytes | wc -l
+  # this reads a json file and counts the number of connections that sent more than 40 bytes
+/> xpath -q -e "//host[ports/port/state[@state='open']]/address/@addr|//host[ports/port/state[@state='open']]/ports/port/@portid" output.xml
+  # This selects the host node and prints the attribute @addr only if the attribute @state is open, and then prints portid only if the state is open
+
+
+DAY 10
+--------------
+/> .\volatility_2.6_win64_standalone.exe -f "<file>" <command>
+  # this shows the offset of certain commands
+/> .\volatility_2.6_win64_standalone.exe -f ".\cridex.vmem" --profile=WinXPSP2x86 procdump -p 1640 -D
+  # this is how you dump the executable running as a process, possibly to hash the executable
+/> .\volatility_2.6_win64_standalone.exe -f ".\cridex.vmem" --profile=WinXPSP2x86 memdump -p 1640 -D .
+  # this dumps memory resident pages in a given process, in this case process 1640
+/> .\volatility_2.6_win64_standalone.exe -f ".\0zapftis.vmem" --profile=WinXPSP2x86 cmdscan
+  # this lists commands that were run by a profile
+
+Active Directories are broken into:
+  Domains
+  Trees
+  Forests
+/> Get-Command -Module activedirectory
+  # this searches for commands for specified module
+/> Get-ADDefaultDomainPasswordPolicy
+  # account lockout policies
+/> Get-ADFineGrainedPasswordPolicy -Filter {name -like "*"}
+  # searches for specific lockout policies
+/> Get-ADForest
+  # dumps forest details
+/> Get-ADGroup -Filter *
+  # Dumps AD groups
+  /> Get-ADGroup -Identity 'IA Analysts Team'
+    # searches for specific group
+/> Get-ADUser -Filter 'Name -like "*"'
+  # dumps AD user
+/> Get-ADUser -Identity 'Nina.Webster' -Properties Description
+  # verboses AD user's stuff
+/> get-aduser -filter {Enabled -eq "FALSE"} -properties name, enabled
+  # finds disabled users
+/> Enable-ADAccount -Identity guest
+  # this will enable a disabled account
+/> Set-AdAccountPassword -Identity guest -NewPassword (ConvertTo-SecureString -AsPlaintext -String "PassWord12345!!" -Force)
+  # this sets a password for a user
+/> Get-ADuser -filter * | select distinguishedname, name
+  # Get Distinguished Name to match AD format
+/> New-ADUser -Name "Bad.Guy" -AccountPassword (ConvertTo-SecureString -AsPlaintext -String "PassWord12345!!" -Force) -path "OU=3RD PLT,OU=CCO,OU=3RDBN,OU=WARRIORS,DC=army,DC=warriors"
+  # create new user
+/> Enable-ADAccount -Identity "Bad.Guy"
+  # enables account
+/> Disable-AdAccount -Identity Guest
+  # disables account
+/> Add-ADGroupMember -Identity "Domain Admins" -Members "Bad.Guy"
+  # adds user to admin group
+/> Remove-ADUser -Identity "Bad.Guy"
+  # removes user
+/> Remove-ADGroupMember -Identity "Domain Admins" -Members guest
+  # removes from group
+/> Get-AdGroupMember -identity "Domain Admins" -Recursive | %{Get-ADUser -identity $_.DistinguishedName}
+  # Get All Domain Admin Accounts
+/> Get-AdGroupMember -identity "Enterprise Admins" -Recursive | %{Get-ADUser -identity $_.DistinguishedName} | select name, Enabled
+  # gets all enterprise admin accounts
+/> (Get-AdGroupMember -Identity 'domain admins').Name
+  # Get Name Property from the Active Directory Group named "Domain Admins"
+/> (Get-AdGroupMember -Identity "System Admins LV1").Name
+  # Get Active Directory Group 'System' Admin Names 'LvL 1'
+/> (Get-AdGroupMember -Identity "System Admins").Name
+  # Get Active Directory Group 'System Admin' Names
+/> (Get-AdGroupMember -Identity "System Admins LV2").Name
+  # Get Active Directory Group 'System' Admin Names 'LVL 2'
+/> $env:USERDOMAIN
+  # prints the short name of the domain you are in
+/> get-adgroupmember -identity "domain admins"
+  # this gets the users inside of system admins (not subgroups)
+
+
+
+REVIEW
+------------------
+!/ETC is a directory for configurations!
+If something is a scheduled task, it will survive a reboot.
+
+Systemd perstence
+  /sbin/init
+SysV persistence
+  /etc/init
+
+Sysinternals tools
+  Procmon
+  Autorun - keys, tasks (most useful)
+Permissions Linux
+  Execute in a directory - You can move into it
+    If no permission set, then you cant go into it (cd <file>)
+    Still interact with it with ls.
+    SUID - The owner of the file, rather than the user running it
+    GUID - The group that has access to the file.
+    Sticky bit - is usually for shared directories. If I set the sticky bit on a directory, I am the only one that can delete it.
+Zombie
+  defunct process is a process that has completed execution
+Orphan
+  Gets addopted by int
+Daemon
+  Services
+  Background processes
+  It uses them as a method of persistence
+  /> systemctl status
+Linux Logging - /var/log, /etc/rsyslog.conf
+Powershell Profiles
+  Current User, Current Host
+  Current User, All Hosts
+  All users, Current Host
+  All Users, All Host
+$HOME - user's home path {/home/<user>
+Windows Registry
+  HKLM - contains system startup information
+  HKCU - Current User, symbolically linked to HKU
+  HKCC - stores current hardware profile
+  HKCR - contains registered application information
+Things to Look For:
+  Mispelled file names that shouldnt be mispelled
+  Something that should be a system level process, but has a high ppid
+  Seeing multiple names for a process that should only be there once
+  High PIDs for processes that shoulds be low
+Format for the test:
+  Something happened to the computer system.
+  Check logs
+  Check for services, processes
+  Check Powershell profiles for persistence (run through each one)
+  Check the run keys
+  Sysinternals tools
+    use autorun
+    use process explorer
+  Check alternate data streams (refer to notes)
+  Check services (can run executables)
+  Check for scheduled tasks
+  Linux boot
+    Check the run levels
+      /etc/inittab
+      Check default runlevel
+    Check Bash profiles
+      Bashrc
+      Bash_profile
+    Systemd
+    Sysv
+## profiles-ordered pesdent 
+## RUN keys , HKLM HKCU Servcies , reg qurey 
+## reg,pwsh pfile , sercies (misspelled names,running out of ?)
+## crontabs, init, run levels,etc/enverment /etc/profile .bashrc, .bash_profile
+## Get-Ciminstance Win32_service | Select Name, Processid, Pathname | ft -wrap | more * services
+## auto run systool
+## /var/spool/cron /etc/cron.d and  /etc/crontab
