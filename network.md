@@ -2,7 +2,8 @@
 FG - https://net.cybbh.io/public/networking/latest/index.html
 VTA Logon - networking-ctfd-1.server.vta:8000 (http://10.50.20.180:8000/)
 Miro - https://miro.com/app/board/o9J_klSqCSY=/?share_link_id=16133753693
-IP - ssh student@10.50.37.95 -X
+IP - ssh student@10.50.40.228 -X 
+password
 
 
 Protocol Data Unit (PDU)
