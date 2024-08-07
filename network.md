@@ -543,3 +543,581 @@ Kerberos (UDP Port 88)
 
 LDAP (Port 389 and 636)
 > # Accessing and managing distributed directory information services
+[LECTURE]
+Traffic Filtering Concepts
+> Protocols Operation
+> Header Analysis
+> Network Recon
+> Tunnel Analysis
+> IOA and IOC
+> Malware Analysis
+
+
+Defense in Depth
+> Perimeter Security
+> Network Security
+> Endpoint Security
+> Application and OS Security
+> Data Security
+
+Default Policies
+> Explicit (precisely and clearly expressed)
+> Implicit (implied or understood)
+
+
+Block-Listing vs Allow listing
+> Block-listing
+  > # Implicit ACCEPT
+  > # Explicit DENY
+> Allow-Listing (Formerly White-List)
+  > # Implicit DENY
+  > # Explicit ACCEPT
+
+
+Firewall Filtering Methods
+> Stateless (Packet) Filtering (L3+4)
+> Stateful Inspection (L4)
+> Circuit-Level (L5)
+> Application Layer (L7)
+> Next Generation (NGFW) (L7)
+
+
+Software vs Hardware vs Cloud Firewalls
+> Software (typically host-based)
+> Hardware (typically network-based)
+> Cloud (provided as a service)
+
+
+Traffic Directions
+> A-to-B
+  > # Traffic originating from the localhost to the remote-host
+    > # You (the client) are the client sending traffic to the server
+  > # Return traffic from that remote-host back to the localhost
+    > # The server is responding back to you (the client)
+> B-to-A
+  > # Traffic originating from the remote-host to the localhost
+    > # A client is trying to connect to you (the server)
+  > # Return traffic from the localhost back to the remote-host
+    > # You (the server) are responding back to the client
+
+
+
+Netfilter Framework
+> Packet Filtering
+> Stateless/Stateful Firewalls
+> Network address and port translation (NAT and PAT)
+> Other packet manupulation
+
+
+
+Netfilter Hooks -> Chain
+> NF_IP_PRE_ROUTING → PREROUTING
+> NF_IP_LOCAL_IN → INPUT
+> NF_IP_FORWARD → FORWARD
+> NF_IP_LOCAL_OUT → OUTPUT
+> NF_IP_POST_ROUTING → POSTROUTING
+
+
+
+Netfilter Paradigm
+> Tables (contain chains)
+> Chains (contain rules)
+> Rules (dictate what to match and what actions to perform on packets when packet match a rule)
+
+
+
+Separate Applications
+> Iptables (IPv4 packet administration)
+> Ip6tables (Ipv6 packet adminstration)
+> ebtables (Ethernet Bridge frame table administration)
+> arptables (Arp packet administration)
+
+============================= IPtables ====================================
+
+Tables of IPtables
+> Filter (default table. provides packet filtering)
+> NAT (used to translate private <--> public address and ports)
+> Mangle (provides special packet alteration. can modify various fields header fields)
+> RAW (used to configure exemptions from connection tracking)
+> Security (used for Mandatory Access Control (MAC) networking rules)
+
+
+
+Chains of IPtables
+> PREROUTING (packets entering NIC before routing)
+> INPUT (packets to localhost after routing)
+> FORWARD (packets routed from on NIC to another (needs to be enabled))
+> OUTPUT (packets from localhost to be routed)
+> POSTROUTING (packets leaving the system after routing)
+
+
+
+Chains Assigned to Each Table
+> Filter (INPUT, FORWARD, and OUTPUT)
+> NAT (PREROUTING, POSTROUTING, INPUT, and OUTPUT)
+> Mangle (All chains)
+> Raw (PREROUTING and OUTPUT)
+> Security (INPUT, FORWARD, and OUTPUT)
+
+
+
+Common IPtable Options
+/> -t
+  > # Specifies the table. (Default is filter)
+/> -A
+  > # Appends a rule to the end of the list or below specified rule
+/> -I
+  > # Inserts the rule at the top of the list or above specified rule
+/> -R
+  > # Replaces a rule at the specified rule number
+/> -D
+  > # Deletes a rule at the specified rule number
+/> -F
+  > # Flushes the rules in the selected chain
+/> -L
+  > # Lists the rules in the selected chain using standard formatting
+/> -S
+  > # Lists the rules in the selected chain without standard formatting
+/> -P
+  > # Sets the default policy for the selected chain
+/> -n
+  > # Disables inverse lookups when listing rules
+/> --line-numbers
+  > # Prints the rule number when listing rules
+/> -p
+  > # Specifies the protocol
+/> -i
+  > # Specifies the input interface
+/> -o
+  > # Specifies the output interface
+/> --sport
+  > # Specifies the source port
+/> --dport
+  > # Specifies the destination port
+/> -s
+  > # Specifies the source IP
+/> -d
+  > # Specifies the destination IP
+/> -j
+  > # Specifies the jump target action
+
+
+IPtables Syntax
+/> iptables -t [table] -A [chain] [rules] -j [action]
+  > # Table: filter*, nat, mangle
+  > # Chain: INPUT, OUTPUT, PREROUTING, POSTROUTING, FORWARD
+
+
+
+IPtables Rules Syntax
+/> -i [ iface ] input
+/> -o [ iface ] output
+/> -s [ ip.add | network/CIDR ]
+/> -d [ ip.add | network/CIDR ]
+/> -p icmp [ --icmp-type type# { /code# } ]
+/> -p tcp [ --sport | --dport { port1 |  port1:port2 } ]
+/> -p tcp [ --tcp-flags SYN,ACK,PSH,RST,FIN,URG,ALL,NONE ]
+/> -p udp [ --sport | --dport { port1 | port1:port2 } ]
+> # -m to enable iptables extensions:
+  /> -m state --state NEW,ESTABLISHED,RELATED,UNTRACKED,INVALID
+  /> -m mac [ --mac-source | --mac-destination ] [mac]
+  /> -p [tcp|udp] -m multiport [ --dports | --sports | --ports { port1 | port1:port15 } ]    <---- Multiple Ports
+  /> -m bpf --bytecode [ 'bytecode' ]
+  /> -m iprange [ --src-range | --dst-range { ip1-ip2 } ]
+  iptables -t nat -A POSTROUTING -o eth0 -j SNAT --to 172.16.82.106
+
+
+
+IPtables action Syntax
+> ACCEPT (Allow the packet)
+> REJECT (Deny the packet (send an ICMP reponse))
+> DROP (Deny the packet (send no response))
+/> -j [ ACCEPT | REJECT | DROP ]
+
+
+
+Modify IPtables
+> Flush table
+  /> iptables -t [table] -F
+> Change default policy
+  /> iptables -t [table] -P [chain] [action]
+> Lists rules with rule numbers
+  /> iptables -t [table] -L --line-numbers
+> Lists rules as commands interpreted by the system
+  /> iptables -t [table] -S
+> Inserts rule before Rule number
+  /> iptables -t [table] -I [chain] [rule num] [rules] -j [action]
+> Replaces rule at number
+  /> iptables -t [table] -R [chain] [rule num] [rules] -j [action]
+> Deletes rule at number
+  /> iptables -t [table] -D [chain] [rule num]
+
+================================ NFtables ===================================
+NFtable Enhancements
+> One table command to replace:
+  > iptables
+  > ip6tables
+  > arptables
+  > ebstables
+> Simpler, Cleaner syntax
+> Less code duplication resulting in faster execution
+> simulateous configuration of IPv4 and IPv6
+
+
+NFtables Families
+> ip (IPv4 packets)
+> ip6 (IPv6 packets)
+> inet (IPv4 and IPv6 packets)
+> arp (layer 2)
+> bridge (processing traffic/packets traversing bridges.)
+> netdev (allows for user classification of packets - nftables passes up to the networking stack (no counterpart in iptables))
+
+
+NFTables Hooks
+> Ingress (netdev only)
+> prerouting
+> input
+> forward
+> output
+> postrouting
+
+
+NFtables Chain-Types
+> # There are three chain types
+> Filter
+  > # to filter packets - can be used with arp, bridge, ip, ip6, and inet families
+> Route
+  > # to reroute packets - can be used with ip and ipv6 families only
+> NAT
+  > # used for Network Address Translation - used with ip and ip6 table families only
+
+
+NFtables Syntax
+> Create the Table
+  /> nft add table [family] [table]
+  > [family] = ip*, ip6, inet, arp, bridge and netdev.
+  > [table] = user provided name for the table.
+
+
+> Create the Base Chain
+/> nft add chain [family] [table] [chain] { type [type] hook [hook] priority [priority] \; policy [policy] \;}
+  > [chain] = User defined name for the chain.
+  > [type] =  can be filter, route or nat.
+  > [hook] = prerouting, ingress, input, forward, output or postrouting.
+  > [priority] = user provided integer. Lower number = higher priority. default = 0. Use "--" before negative numbers.
+  > ; [policy] ; = set policy for the chain. Can be accept (default) or drop.
+  > # Use "\" to escape the ";" in bash
+> Create a Rule in the Chain
+/> nft {add|insert} rule [family] [table] [chain] [matches (matches)] [statement]
+  > [matches] = typically protocol headers(i.e. ip, ip6, tcp, udp, icmp, ether, etc)
+  > (matches) = these are specific to the [matches] field.
+  > [statement] = action performed when packet is matched. Some examples are: log, accept, drop, reject, counter, nat (dnat, snat, masquerade)
+
+
+> Rule Match Options
+/> ip [ saddr | daddr { ip | ip1-ip2 | ip/CIDR | ip1, ip2, ip3 } ]
+/> tcp flags { syn, ack, psh, rst, fin }
+/> tcp [ sport | dport { port1 | port1-port2 | port1, port2, port3 } ]
+/> udp [ sport| dport { port1 | port1-port2 | port1, port2, port3 } ]
+/> icmp [ type | code { type# | code# } ]
+/> ct state { new, established, related, invalid, untracked }
+/> iif [iface]
+/> oif [iface]
+
+
+Modify Ntables
+/> nft { list | flush } ruleset
+/> nft { delete | list | flush } table [family] [table]
+/> nft { delete | list | flush } chain [family] [table] [chain]
+
+> List table with handle numbers
+/> nft list table [family] [table] [-a]
+> Adds after position
+/> nft add rule [family] [table] [chain] [position <position>] [matches] [statement]
+> Inserts before position
+/> nft insert rule [family] [table] [chain] [position <position>] [matches] [statement]
+> Replaces rule at handle
+/> nft replace rule [family] [table] [chain] [handle <handle>] [matches] [statement]
+> Deletes rule at handle
+/> nft delete rule [family] [table] [chain] [handle <handle>]
+> To change the current policy
+/> nft add chain [family] [table] [chain] { \; policy [policy] \;}
+
+======================= NAT Rules ==============================
+Configure IPtables NAT Rules
+> Source NAT
+  /> iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+    /> [EXAMPLE] iptables -t nat -A POSTROUTING -p tcp -o eth0 -s 192.168.0.1 -j SNAT --to 1.1.1.1:900
+> Destination NAT
+  /> iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 22 -j DNAT --to 10.0.0.1:22
+  /> iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 80 -j DNAT --to 10.0.0.2:80
+  /> iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 443 -j DNAT --to 10.0.0.3:443
+  /> iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 80 -j REDIRECT --to-port 8080
+
+
+Creating NAT Tables and Chains
+> Create the NAT table
+  /> nft add table ip NAT
+> Create the NAT chains
+  /> nft add chain ip NAT PREROUTING { type nat hook prerouting priority 0 \; }
+  /> nft add chain ip NAT POSTROUTING { type nat hook postrouting priority 0 \; }
+> Source NAT
+  /> nft add rule ip NAT POSTROUTING ip saddr 10.10.0.40 oif eth0 snat 144.15.60.11
+  /> nft add rule ip NAT POSTROUTING oif eth0 masquerade
+> Destination NAT
+  /> nft add rule ip NAT PREROUTING iif eth0 ip daddr 144.15.60.11 dnat 10.10.0.40
+  /> nft add rule ip NAT PREROUTING iif eth0 tcp dport { 80, 443 } dnat 10.1.0.3
+  /> nft add rule ip NAT PREROUTING iif eth0 tcp dport 80 redirect to 8080
+
+================== Mangle Rules =========================
+Configure IPtables mangle rules
+> Mangle examples with IPtables
+  /> iptables -t mangle -A POSTROUTING -o eth0 -j TTL --ttl-set 128
+  /> iptables -t mangle -A POSTROUTING -o eth0 -j DSCP --set-dscp 26
+
+
+Configure NFtables mangle rules
+> Mangle examples with nftables
+  /> nft add table ip MANGLE
+  /> nft add chain ip MANGLE INPUT {type filter hook input priority 0 \; policy accept \;}
+  /> nft add chain ip MANGLE OUTPUT {type filter hook output priority 0 \; policy accept \;}
+  /> nft add rule ip MANGLE OUTPUT oif eth0 ip ttl set 128
+  /> nft add rule ip MANGLE OUTPUT oif eth0 ip dscp set 26
+
+
+============================= Firewalls ================================
+
+Describe Firewall Type
+> # Zone-Based Policy Firewall (Zone-Policy Firewall, ZBF or ZFW)
+> # Host based firewalls
+> # Network based firewalls
+
+
+Positioning of Filtering Devices on a network
+> Determine network segments
+> Conduct audit
+> filtering devices we need
+> Device placement
+
+
+Typical locations for filtering devices
+> IPS
+> Firewalls
+> Routers
+> Switches
+
+
+
+Cisco Access Control List ## not on the test
+> Standard numbered ACL syntax
+  /> router(config)# access-list {1-99 | 1300-1999}  {permit|deny}  {source IP add} {source wildcard mask}
+  /> router(config)#  access-list 10 permit host 10.0.0.1
+  /> router(config)#  access-list 10 deny 10.0.0.0 0.255.255.255
+  /> router(config)#  access-list 10 permit any
+
+
+Standard named ACL syntax (place as far way from the host as posssible)
+  /> router(config)# ip access-list standard [name]
+  /> router(config-std-nacl)# {permit | deny}  {source ip add}  {source wildcard mask}
+  /> router(config)#  ip access-list standard CCTC-STD
+  /> router(config-std-nacl)#  permit host 10.0.0.1
+  /> router(config-std-nacl)#  deny 10.0.0.0 0.255.255.255
+  /> router(config-std-nacl)#  permit any
+
+
+
+Signature vs Behavior based detection
+> Signature Based
+  > # Looks for known Intrusion stuff
+> Behavior Based
+  > # Looks at the behavior and identifies intrusion based on the way it acts
+
+
+
+Extended numbered ACL Syntax (as close to the source as possible)
+/> router(config)# access-list {100-199 | 2000-2699} {permit | deny} {protocol} {source IP add & wildcard} {operand: eq|lt|gt|neq} 
+   {port# |protocol} {dest IP add & wildcard} {operand: eq|lt|gt|neq} {port# |protocol}
+/> router(config)# access-list 144 permit tcp host 10.0.0.1 any eq 22
+/> router(config)# access-list 144 deny tcp 10.0.0.0 0.255.255.255 any eq telnet
+/> router(config)# access-list 144 permit icmp 10.0.0.0 0.255.255.255 192.168.0.0 0.0.255.255 echo
+/> router(config)# access-list 144 deny icmp 10.0.0.0 0.255.255.255 192.168.0.0 0.0.255.255 echo-reply
+/> router(config)# access-list 144 permit ip any any
+
+/> router(config)# ip access-list extended  [name]
+/> router(config-ext-nacl)# [sequence number] {permit | deny} {protocol} {source IP add & wildcard} 
+   {operand: eq|lt|gt|neq} {port# |protocol} {dest IP add & wildcard} {operand:eq|lt|gt|neq} {port# |protocol}
+/> router(config)# ip access-list extended CCTC-EXT
+/> router(config-ext-nacl)# permit tcp host 10.0.0.1 any eq 22
+/> router(config-ext-nacl)# deny tcp 10.0.0.0 0.255.255.255 any eq telnet
+/> router(config-ext-nacl)# permit icmp 10.0.0.0 0.255.255.255 192.168.0.0 0.0.255.255 echo
+/> router(config-ext-nacl)# deny icmp 10.0.0.0 0.255.255.255 192.168.0.0 0.0.255.255 echo-reply
+/> router(config-ext-nacl)# permit ip any any
+
+
+Apply An ACL to an Interface or Line
+/> router(config)#  interface {type} {mod/slot/port}
+/> router(config)#  ip access-group {ACL# | name} {in | out}
+/> router(config)#  interface s0/0/0
+/> router(config-if)#  ip access-group 10 out
+/> router(config)#  interface g0/1/1
+/> router(config-if)#  ip access-group CCTC-EXT in
+/> router(config)#  line vty 0 15
+/> router(config)#  access-class CCTC-STD in
+
+
+
+Snort Rules
+> Installation Directory
+  > /etc/snort
+> Config file
+  > /etc/snort/snort/conf
+> Rules Directory
+  > /etc/snort/rules
+> Advanced IDS (snort) Rules
+  > Rule naming
+    > [name].rules
+  > Default Log Directory
+    > /var/log/snort
+  > Common line switches
+    /> -D
+      > # to run snort as a daemon
+    /> -c
+      > # to specify a config file when running snort
+    /> -l
+      > # specify a log directory
+    /> -r
+      > # to have snort read a pcap file
+  > To run snort as a Daemon
+    /> sudo snort -D -c /etc/snort/snort.conf -l /var/log/snort
+  > To run snort against a PCAP
+    /> sudo snort -c /etc/snort/rules/file.rules -r file.pcap
+  > Check version
+    /> snort --version
+  > To check for what the log file for the running daemon is
+    /> ps -elf | grep snort
+  > SYNTAX
+    /> alert [tcp,udp,icmp] [SIP] [SPORT] [<-,->,<->] [DIP] [DPORT] (msg:<message>; sid:<ID>; rev:<rev number>;)
+  > To see binary log file in plain text along with hex
+    /> tcpdump -r <log file> -XX -vn
+      > # -vn just shows more information like TTL
+  > To run snort
+    /> snort -D -l /var/log/snort/ -c /etc/snort/snort.conf
+
+
+Snort IDS/IPS Rule Header
+/> [action] [protocol] [s.ip] [s.port] [direction] [d.ip] [d.port] ( match conditions ;)
+  > Action - alert, log, pass, drop, or reject
+  > Protocol - TCP, UDP, ICMP, or IP
+  > Source IP address - one IP, network, [IP range], or any
+  > Source Port - one, [multiple], any, or [range of ports]
+  > Direction - source to destination or both
+  > Destination IP address - one IP, network, [IP range], or any
+  > Destination port - one, [multiple], any, or [range of ports]
+
+
+
+Snort IDS/IPS General Rule options:
+/> alert [tcp,udp,icmp] [SIP] [SPORT] [<-,->,<->] [DIP] [DPORT] (msg:<message>; sid:<ID>; rev:<rev number>;)
+> msg:"text" - specifies the human-readable alert message
+> reference: - links to external source of the rule
+> sid: - used to uniquely identify Snort rules (required)
+> rev: - uniquely identify revisions of Snort rules
+> classtype: - used to describe what a successful attack would do
+> priority: - level of concern (1 - really bad, 2 - badish, 3 - informational)
+> metadata: - allows a rule writer to embed additional information about the rule
+
+
+
+Snort IDS/IPS Payload Detection Options:
+> content:"text" - looks for a string of text.
+> content:"|binary data|" - to look for a string of binary HEX
+> nocase - modified content, makes it case insensitive
+> depth: - specify how many bytes into a packet Snort should search for the specified pattern
+> offset: - skips a certain number of bytes before searching (i.e. offset: 12)
+> distance: - how far into a packet Snort should ignore before starting to search for the specified pattern relative to the end of the previous pattern match
+> within: - modifier that makes sure that at most N bytes are between pattern matches using the content keyword
+
+
+
+Snort IDS/IPS Non-Payload Detection options:
+> flow: - direction (to/from client and server) and state of connection (established, stateless, stream/no stream)
+> ttl: - The ttl keyword is used to check the IP time-to-live value.
+> tos: - The tos keyword is used to check the IP TOS field for a specific value.
+> ipopts: - The ipopts keyword is used to check if a specific IP option is present
+> fragbits: - Check for R|D|M ip flags.
+> dsize: - Test the packet payload size
+> seq: - Check for a specific TCP sequence number
+> ack: - Check for a specific TCP acknowledge number.
+> flags: - Check for E|C|U|A|P|R|S|F|0 TCP flags.
+> itype: - The itype keyword is used to check for a specific ICMP type value.
+> icode: - The icode keyword is used to check for a specific ICMP code value.
+
+
+
+Snort IDS/IPS Post Detection options:
+> logto: - The logto keyword tells Snort to log all packets that trigger this rule to a special output log file.
+> session: - The session keyword is built to extract user data from TCP Sessions.
+> react: - This keyword implements an ability for users to react to traffic that matches a Snort rule by closing connection and sending a notice.
+> tag: - The tag keyword allow rules to log more than just the single packet that triggered the rule.
+> detection_filter - defines a rate which must be exceeded by a source or destination host before a rule can generate an event.
+
+
+
+Snort IDS/IPS Thresholding and Suppression options:
+/> threshold: type [limit | threshold | both], track [by_src | by_dst], count [#], seconds [seconds]
+  > limit - alerts on the 1st event during defined period then ignores the rest.
+  > threshold - alerts every [x] times during defined period.
+  > both - alerts once per time internal after seeing [x] amount of occurrences of event. It then ignores all other events during period.
+  > track - rate is tracked either by source IP address, or destination IP address
+  > count - number of rule matching in [s] seconds that will cause event_filter limit to be exceeded
+  > seconds - time period over which count is accrued. [s] must be nonzero value
+
+
+
+Snort rule Example
+> Look for anonymous ftp traffic:
+  /> alert tcp any any -> any 21 (msg:"Anonymous FTP Login"; content: "anonymous"; sid:2121; )
+> This will cause the pattern matcher to start looking at byte 6 in the payload)
+  /> alert tcp any any -> any 21 (msg:"Anonymous FTP Login"; content: "anonymous"; offset:5; sid:2121; )
+> This will search the first 14 bytes of the packet looking for the word "anonymous"
+  /> alert tcp any any -> any 21 (msg:"Anonymous FTP Login"; content: "anonymous"; depth:14; sid:2121; )
+> Deactivates the case sensitivity of a text search
+  /> alert tcp any any -> any 21 (msg:"Anonymous FTP Login"; content: "anonymous"; nocase; sid:2121; )
+> ICMP ping sweep
+  /> alert icmp any any -> 10.10.0.40 any (msg: "NMAP ping sweep Scan"; dsize:0; itype:8; icode:0; sid:10000004; rev: 1; )
+> Look for a specific set of Hex bits (NoOP sled)
+  /> alert tcp any any -> any any (msg:"NoOp sled"; content: "|9090 9090 9090|"; sid:9090; rev: 1; )
+> Telnet brute force login attempt
+  /> alert tcp any 23 -> any any (msg:"TELNET login incorrect";
+     content:"Login incorrect"; nocase; flow:established, from_server;
+     threshold: type both, track by_src, count 3, seconds 30;
+     classtype: bad-unknown; sid:2323; rev:6; )
+
+
+Technical attacks on IDS/IPS
+> # Packet sequence manipulation
+> # Fragmentation payload
+> # Overlapping fragments with different reassembly by devices
+> # Manipulating TCP headers
+> # Manipulating IP options
+> # Sending data during the TCP connection setup
+
+
+Non-Technical Attacks against IDS/IPS
+> # Attacking during periods of low manning
+  > # Example - Ramadan 2012 Saudi Aramco attack
+> # Attacking during a surge in activity
+  > # Example - Target Corp. Point of sale machines during  the thanksgiving-christmas 2013 shopping season
+
+
+
+
+
+
+alert icmp any any -> any any (msg:"Cows"; content:"|DEADBEEF|"; sid:1000001;)
+>>>DEADBEEF in hex
+alert icmp any any -> 10.3.0.0/24 any (msg:"DMZ Ping";itype:8;icode:0;sid:1000002;)
+alert udp any any -> 10.0.0.0/8 [137,138] (sid:1000007;)
+alert tcp any any -> 10.0.0.0/8 [137,139,445] (sid:1000008;)
+alert ip any 3389 -> 192.168.65.20 any (sid:1000004;)
+alert tcp any any -> any 22 (msg:"Oh no ";threshold:type both,track by_src,count 3,seconds 10;sid:1000005;)
