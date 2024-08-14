@@ -25,62 +25,6 @@ Stack Number	Username	Password	jump
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# CTFD - http://10.50.20.30:8000
-### Username
-```
-JOHU-503-M
-```
-### jumpbox
-```
-10.50.30.50
-```
-#### Password
-```
-z3rO0sdmpFsRyRR
-```
-### Lin-Ops
-```
-10.50.30.231
-```
-### WIN-OPS
-```
-10.50.38.121
-```
-#### XFREERDP COMMAND
-```
-xfreerdp /u:student /v:10.50.38.121 -dynamic-resolution +glyph-cache +clipboard
-```
-#### Password
-```
-password
-```
-### Stack Number - 13
 ### Multiplexing command
 ```
 ssh -MS /tmp/jump student@10.50.30.50
