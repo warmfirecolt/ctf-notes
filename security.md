@@ -228,16 +228,18 @@ HTTP Fields
     Set-Cookie
 
 JavaScript Interaction
-
+```
 <script>
 function myFunction() {
     document.getElementById("demo").innerHTML = "Paragraph changed.";
 }
+```
+```
 </script>
 <script src="https://www.w3schools.com/js/myScript1.js"></script>
 
     JS Demo - http://10.50.XX.XX/java/Javademo.html
-
+```
 Enumeration
 
     ROBOTS.TXT
