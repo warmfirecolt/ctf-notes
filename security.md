@@ -202,7 +202,7 @@ LINOPS		JUMP		T1		T2		T3
 * Creates proxychains on t2
 * `<TERMINAL_4>/> ssh -S /tmp/t2 dumb -O forward -L 1234:<t3_IP>:21 `
 * Creates forward to t3 on port 21
-## day2
+# Day2
 HTTP Methods
 
     GET
