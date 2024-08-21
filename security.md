@@ -378,6 +378,7 @@ pdisass main    # Lists the main function. (Can do this to any function)
 info proc map    # Gets a map of the process
 ```
 # Demo Linux
+env - edb ./func
 * [Buffer-Overflow-Generator](https://wiremask.eu/tools/buffer-overflow-pattern-generator/)
   - Look for "EIP" It should have a specific value from the characters you overflowed it with, copy the hex value determine the overflow amount
 * To see the size of the stack, do "info proc map" and note the line with [heap], the line below that has a start addr (this is the start of the stack). Note the end addr of the line that has [stack] in it.
