@@ -1,6 +1,11 @@
 Record deleted successfully
 Stack Number	Username	Password	jump
 15 	ZANE-005-M 	ccfntq364w3wf0B 	10.50.33.126
+Stack Number	Username	Password	jump
+15 	ZANE-005-M 	kAjbrg8EgSX6FyF 	10.50.35.94
+
+
+
 ### Multiplexing command
 ```
 ssh -MS /tmp/jump student@10.50.30.50
