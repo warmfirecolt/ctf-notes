@@ -4,3 +4,5 @@ recon gathing info with indirect that do not touch the target
 active touching the target 
 passive no direct interaction is made
  
+mto will drive the creation of a mission profile
+cto is a must link to a mission plan
